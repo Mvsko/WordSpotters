@@ -1,0 +1,1 @@
+ gcc -o test main.c -lSDL2 -lSDL2_image -g `sdl2-config --cflags --libs`
