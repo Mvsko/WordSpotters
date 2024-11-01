@@ -54,6 +54,11 @@ char **initGrid(char *filename,size_t height,size_t width)
     printf("test1\n");
     char **grid = malloc(height * sizeof(char));
     FILE *fptr = fopen(filename, "r");
+    if( NULL == fptr )
+    {
+        printf( "Cannot open\n" );
+        exit( 1 );
+    }
     char buffer[100];
     for (size_t i = 0; i < height; i++)
     {
@@ -68,6 +73,7 @@ char **initGrid(char *filename,size_t height,size_t width)
     }
     printf("test2\n");
     fclose(fptr);
+    printf("test21\n");
     return grid;
 }
 
