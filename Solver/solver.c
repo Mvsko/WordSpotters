@@ -53,7 +53,6 @@ char **initGrid(char *filename,size_t height)
     char **grid = malloc(height * sizeof(size_t));
     FILE *fptr = fopen(filename, "r");
     char buffer[100];
-    printf("%ld\n",height);
     for (size_t i = 0; i < height; i++)
     {
         fgets(buffer,100,fptr);
