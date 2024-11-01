@@ -39,7 +39,6 @@ int gridDim(char *filename,size_t *height,size_t *width)
         (*height)--;
     }
     fclose(fptr);
-    printf("H: %ld - W: %ld",*height,*width);
     if (*height < 5 || *width < 5)
     {
         printf("Error: The grid is too small (must be at least 5x5)");
@@ -51,21 +50,14 @@ int gridDim(char *filename,size_t *height,size_t *width)
 
 char **initGrid(char *filename,size_t height)
 {
-    printf("test1\n");
     char **grid = malloc(height * sizeof(size_t));
     FILE *fptr = fopen(filename, "r");
-    if( NULL == fptr )
-    {
-        printf( "Cannot open\n" );
-        exit( 1 );
-    }
     char buffer[100];
     printf("%ld\n",height);
     for (size_t i = 0; i < height; i++)
     {
         fgets(buffer,100,fptr);
         size_t len = strlen(buffer);
-        printf("len = %ld height = %ld\n",len,i);
         grid[i] = malloc((len+1) * sizeof(char));
         for (size_t j = 0; j < len; j++)
         {
@@ -73,13 +65,10 @@ char **initGrid(char *filename,size_t height)
         }
         grid[i][len] = 0;
     }
-    printf("test2\n");
     if (fptr != NULL)
     {
-        printf("a");
         fclose(fptr);
     }
-    printf("test21\n");
     return grid;
 }
 
@@ -235,31 +224,19 @@ int main(int argc, char **argv)
         printf("%d An error occurred. Exiting...",d);
         return EXIT_FAILURE;
     }
-    printf("test0\n");
     char **grid = initGrid(argv[1],height);
-    printf("test3\n");
-    //printf("H: %d W: %d \n",height,width);
-    /* for (size_t i = 0; i < height; i++)
-    {
-        char dest[width+1];
-        strReverse(dest,grid[i],width);
-        printf("%s - %s\n",grid[i],dest);
-    } */
-
-   int wordLen = strlen(argv[2]);
+    int wordLen = strlen(argv[2]);
     char word[wordLen+1];
     for (int i = 0; i < wordLen; i++)
     {
         word[i] = toupper(argv[2][i]);
     }
     word[wordLen] = 0;
-    printf("test4\n");
     //Searching the word from left to right
     int res[4];
     searchHorizontal(grid,word,height,width,res);
     if (res[0] != -1)
     {
-        printf("test5\n");
         printf("(%d,%d)(%d,%d)\n",res[0],res[1],res[2],res[3]);
         freeGrid(grid,height);
         return EXIT_SUCCESS;
@@ -317,9 +294,7 @@ int main(int argc, char **argv)
         freeGrid(grid,height);
         return EXIT_SUCCESS;
     }
-    printf("test6\n");
     printf("Not Found\n");
     freeGrid(grid,height);
-    printf("test7\n");
     return EXIT_SUCCESS;
 }
