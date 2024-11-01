@@ -51,6 +51,7 @@ int gridDim(char *filename,size_t *height,size_t *width)
 
 char **initGrid(char *filename,size_t height,size_t width)
 {
+    printf("test1\n");
     char **grid = malloc(height * sizeof(char));
     FILE *fptr = fopen(filename, "r");
     char buffer[100];
@@ -65,6 +66,7 @@ char **initGrid(char *filename,size_t height,size_t width)
         //strcpy(grid[i],buffer);
         grid[i][width] = 0;
     }
+    printf("test2\n");
     fclose(fptr);
     return grid;
 }
@@ -221,7 +223,9 @@ int main(int argc, char **argv)
         printf("%d An error occurred. Exiting...",d);
         return EXIT_FAILURE;
     }
+    printf("test0\n");
     char **grid = initGrid(argv[1],height,width);
+    printf("test3 - %s\n",grid);
     //printf("H: %d W: %d \n",height,width);
     /* for (size_t i = 0; i < height; i++)
     {
@@ -237,12 +241,13 @@ int main(int argc, char **argv)
         word[i] = toupper(argv[2][i]);
     }
     word[wordLen] = 0;
-
+    printf("test4\n");
     //Searching the word from left to right
     int res[4];
     searchHorizontal(grid,word,height,width,res);
     if (res[0] != -1)
     {
+        printf("test5\n");
         printf("(%d,%d)(%d,%d)\n",res[0],res[1],res[2],res[3]);
         freeGrid(grid,height);
         return EXIT_SUCCESS;
@@ -300,8 +305,9 @@ int main(int argc, char **argv)
         freeGrid(grid,height);
         return EXIT_SUCCESS;
     }
-
+    printf("test6\n");
     printf("Not Found\n");
     freeGrid(grid,height);
+    printf("test7\n");
     return EXIT_SUCCESS;
 }
