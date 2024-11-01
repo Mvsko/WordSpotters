@@ -49,7 +49,7 @@ int gridDim(char *filename,size_t *height,size_t *width)
     return 0; //no error
 }
 
-char **initGrid(char *filename,size_t height,size_t width)
+char **initGrid(char *filename,size_t height)
 {
     printf("test1\n");
     char **grid = malloc(height * sizeof(char));
@@ -230,8 +230,8 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
     printf("test0\n");
-    char **grid = initGrid(argv[1],height,width);
-    printf("test3 - %s\n",grid);
+    char **grid = initGrid(argv[1],height);
+    printf("test3\n");
     //printf("H: %d W: %d \n",height,width);
     /* for (size_t i = 0; i < height; i++)
     {
