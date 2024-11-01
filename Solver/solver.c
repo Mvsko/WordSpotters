@@ -63,13 +63,13 @@ char **initGrid(char *filename,size_t height,size_t width)
     for (size_t i = 0; i < height; i++)
     {
         fgets(buffer,100,fptr);
-        grid[i] = malloc((width+1) * sizeof(char));
-        for (size_t j = 0; j < width; j++)
+        size_t len = strlen(buffer);
+        grid[i] = malloc((len+1) * sizeof(char));
+        for (size_t j = 0; j < len; j++)
         {
             grid[i][j] = toupper(buffer[j]);
         }
-        //strcpy(grid[i],buffer);
-        grid[i][width] = 0;
+        grid[i][len] = 0;
     }
     printf("test2\n");
     fclose(fptr);
