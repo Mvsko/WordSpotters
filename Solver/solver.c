@@ -11,7 +11,6 @@ int gridDim(char *filename,size_t *height,size_t *width)
     if (fptr == 0)
     {
         printf("Error: The file %s does not exist\n",filename);
-        fclose(fptr);
         return -1; //error
     }
     char buffer[100];
@@ -74,7 +73,11 @@ char **initGrid(char *filename,size_t height)
         grid[i][len] = 0;
     }
     printf("test2\n");
-    fclose(fptr);
+    if (fptr != NULL)
+    {
+        printf("a");
+        fclose(fptr);
+    }
     printf("test21\n");
     return grid;
 }
