@@ -60,12 +60,12 @@ char **initGrid(char *filename,size_t height)
         exit( 1 );
     }
     char buffer[100];
-    printf("%d\n",height);
+    printf("%ld\n",height);
     for (size_t i = 0; i < height; i++)
     {
         fgets(buffer,100,fptr);
         size_t len = strlen(buffer);
-        printf("len = %d height = %d\n",len,i);
+        printf("len = %ld height = %ld\n",len,i);
         grid[i] = malloc((len+1) * sizeof(char));
         for (size_t j = 0; j < len; j++)
         {
