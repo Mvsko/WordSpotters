@@ -208,7 +208,7 @@ int main(int argc, char **argv)
     //Sanitizing arguments
     if (argc != 3)
     {
-        printf("Invalid arguments. Correct usage: ./solver <word> <file name>\n");
+        printf("Invalid arguments. Correct usage: ./solver <file name> <word>\n");
         return EXIT_FAILURE;
     }
 
@@ -232,7 +232,7 @@ int main(int argc, char **argv)
 
    int wordLen = strlen(argv[2]);
     char word[wordLen+1];
-    for (size_t i = 0; i < wordLen; i++)
+    for (int i = 0; i < wordLen; i++)
     {
         word[i] = toupper(argv[2][i]);
     }
