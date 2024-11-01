@@ -39,6 +39,7 @@ int gridDim(char *filename,size_t *height,size_t *width)
         (*height)--;
     }
     fclose(fptr);
+    printf("H: %ld - W: %ld",*height,*width);
     if (*height < 5 || *width < 5)
     {
         printf("Error: The grid is too small (must be at least 5x5)");
@@ -51,7 +52,7 @@ int gridDim(char *filename,size_t *height,size_t *width)
 char **initGrid(char *filename,size_t height)
 {
     printf("test1\n");
-    char **grid = malloc(height * sizeof(char));
+    char **grid = malloc(height * sizeof(size_t));
     FILE *fptr = fopen(filename, "r");
     if( NULL == fptr )
     {
