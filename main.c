@@ -3,17 +3,23 @@
 #include <err.h>
 #include <unistd.h>
 #include <SDL2/SDL_pixels.h>
+#include <time.h>
+#include <stdlib.h>
 
-#include "Grayscale.c"
+
+#include "Refine/Grayscale.c"
+#include "Tools/Save.c"
 
 int main(int argc, char ** argv)
 {
     int quit = 0;
     SDL_Event event;
-    float frotate=0.0f;
+    double frotate=0;
 
-    if (argc != 2)
-        errx(EXIT_FAILURE, "Usage: image-file");
+    if (argc < 2)
+        errx(EXIT_FAILURE, "Parameters Issue :  image-file && Angle(NULL) ");
+    if(argc >=3)
+       frotate +=atoi(argv[2]);
 
     if(SDL_Init(SDL_INIT_VIDEO)!=0)
     {
@@ -23,7 +29,7 @@ int main(int argc, char ** argv)
     IMG_Init(IMG_INIT_JPG);
 
     SDL_Window * window = SDL_CreateWindow("SDL2 Grayscale",
-        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 800, 0);
 
     if(window == NULL)
         errx(EXIT_FAILURE, "%s", SDL_GetError());
@@ -64,21 +70,25 @@ int main(int argc, char ** argv)
             case SDL_KEYDOWN:
                 switch (event.key.keysym.sym)
                 {
-
                 case SDLK_g:
                     Grayscale(image);
                     break;
-                case SDLK_r:
-                    frotate += 0.5f;
+                case SDLK_b:
+                    Toblackwhite(image);
+                    break;
+                case SDLK_s:
+                    if(IMG_SavePNG(image, "Pictures/out.png")==1)
+                    {
+                        errx(EXIT_FAILURE, "%s", SDL_GetError());
+                    }
                     break;
                 }
                 break;
         }
         SDL_RenderCopyEx(renderer, texture, NULL, NULL, frotate, NULL,SDL_FLIP_NONE );
-        //SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
-    }
 
+    }
     SDL_DestroyTexture(texture);
     SDL_FreeSurface(image);
     SDL_DestroyRenderer(renderer);
