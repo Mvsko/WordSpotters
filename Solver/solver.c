@@ -192,7 +192,7 @@ int * searchDiagonal2(char **grid,char *word,size_t height,size_t width,int * re
             if (i == len)
             {
                 res[3] = x+i-1;
-                res[2] = y-i-1;
+                res[2] = y-i+1;
                 return res;
             }
             
