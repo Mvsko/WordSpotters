@@ -6,7 +6,7 @@
 #include <time.h>
 #include <stdlib.h>
 
-
+#include "Refine/Rotation.c"
 #include "Refine/Grayscale.c"
 #include "Tools/Save.c"
 
@@ -81,6 +81,7 @@ int main(int argc, char ** argv)
                     {
                         errx(EXIT_FAILURE, "%s", SDL_GetError());
                     }
+                    Rotation(argv[1]);
                     break;
                 }
                 break;
