@@ -1,10 +1,11 @@
 
-void Rotation()
+void Rotation(char * angle)
 {
-        FILE *fIn = fopen("lena512.bmp","r");					//Input File name
-	FILE *fOut = fopen("lena_rotate.bmp","w+");		    	        //Output File name
+        FILE *fIn = fopen("../Pictures/out.png","r");					//Input File name
+	FILE *fOut = fopen("../Pictures/out_rotate.png","w+");		    	        //Output File name
 
 	int i,j,choice;
+	choice = atoi(angle)
 	unsigned char byte[54],colorTable[1024];
 
 	if(fIn==NULL)											// check if the input file has not been opened succesfully.
@@ -40,16 +41,9 @@ void Rotation()
 
 	fread(buffer,sizeof(unsigned char),size,fIn);			//read the image data
 
-	printf("Enter your choice :\n");
-	printf("1. Rotate right\n");
-	printf("2. Rotate left\n");
-	printf("3. Rotate 180\n");
-
-	scanf("%d",&choice);
-
 	switch(choice)												//to rotate image in 3 direction
 	{
-		case 1:
+		case 90:
 			for(i=0;i<width;i++)								//to rotate right
 			{
 				for(j=0;j<height;j++)
@@ -58,7 +52,7 @@ void Rotation()
 				}
 			}
 			break;
-		case 2:
+		case 270:
 			for(i=0;i<width;i++)								//to rotate left
 			{
 				for(j=0;j<height;j++)
@@ -67,7 +61,7 @@ void Rotation()
 				}
 			}
 			break;
-		case 3:
+		case 180:
 			for(i=0;i<width;i++)								//to rotate 180 degree
 			{
 				for(j=0;j<height;j++)
