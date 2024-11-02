@@ -94,8 +94,8 @@ void draw_rectangle(SDL_Surface* surface, int x, int y, int x2, int y2)
 {
     if(surface == NULL)
         printf("err");
-    int width = x2-x+1;
-    int height = y2-y+1;
+    int width = x2;
+    int height = y2;
     printf("%d %d %d %d %d %d\n",x,y,x2,y2,width,height);
    // SDL_LockSurface(surface);
     Uint32 * pixels = (Uint32 *)surface->pixels;
@@ -112,12 +112,12 @@ void draw_rectangle(SDL_Surface* surface, int x, int y, int x2, int y2)
     for (int dy = y; dy < height; dy++)
     {
         Uint32 pixel = (0xFF << 24) | (255 << 16) | (100 << 8) | 0;
-        pixels[(dy) * surface->w + x + width] = pixel;
+        pixels[(dy) * surface->w + x2] = pixel;
     }
     for (int dx = x; dx < width; dx++)
     {
         Uint32 pixel = (0xFF << 24) | (255 << 16) | (100 << 8) | 0;
-        pixels[(height+y) * surface->w + dx] = pixel;
+        pixels[(y2) * surface->w + dx] = pixel;
     }
     //SDL_UnlockSurface(surface);
 }
@@ -407,14 +407,58 @@ int main(int argc, char ** argv)
                 switch (event.key.keysym.sym)
                 {
                 case SDLK_d:
-                    detectionLoop(image);
+                    //detectionLoop(image);
+printf("test1\n");
+    Uint32 * pixels = (Uint32 *)image->pixels;
+    int listSize = 0;
+    //int **list = initList();
+    printf("test2\n");
+    for (int y = 0; y < image->h; y++)
+    {
+        for (int x = 0; x < image->w ; x++)
+        {
+            Uint32 pixel = pixels[y * image->w + x];
+            Uint8 r = pixel >> 16 & 0xFF;
+            if(r < 127.5)
+            {
+                printf("test2.1 - %d / %d\n",y,x);
+                getCharNb(image,x,y,&listSize);
+            }
+        }
+    }
+    int **list = initList(listSize);
+    int size2 = 0;
+    for (int y = 0; y < image->h; y++)
+    {
+        for (int x = 0; x < image->w ; x++)
+        {
+            Uint32 pixel = pixels[y * image->w + x];
+            Uint8 r = pixel >> 16 & 0xFF;
+            if(r < 127.5)
+            {
+                printf("test2.1 - %d / %d\n",y,x);
+                getCharPos(image,x,y,list,&size2);
+            }
+        }
+    }
+    printf("test3\n");
+    for (int i = 0; i < size2; i++)
+        if (list[i][0] != 0)
+        {
+            printf("%d - %d\n",i,list[i][0]);
+            draw_rectangle(image,list[i][0],list[i][1],list[i][2],list[i][3]);
+        }
+    printf("test4\n");
+    freeList(list,listSize);
+    printf("test5\n");
 		    //count++;
                     //draw_rectangle(image,0,0,5*count,5*count);
                     break;
                 case SDLK_e:
                     //detectionLoop(image);
                     count++;
-                    draw_rectangle(image,0,0,5*count,5*count);
+                    draw_rectangle(image,0,0,44,46);
+		    draw_rectangle(image,600,649,614,670);
                     break;
                 case SDLK_s:
                     if(IMG_SavePNG(image, "Pictures/out.png")==1)
