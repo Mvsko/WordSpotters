@@ -1,1 +1,6 @@
- gcc -o test main.c -lSDL2 -lSDL2_image -g `sdl2-config --cflags --libs`
+Projet OCR de S3 à Epita par WordSpotters,
+
+Links:
+- Cahier des charges: https://moodle.epita.fr/pluginfile.php/179069/mod_label/intro/ocr_word_search_solver_fr.pdf?time=1726043236801
+- Ressource NeuralNetwork: http://neuralnetworksanddeeplearning.com/
+
