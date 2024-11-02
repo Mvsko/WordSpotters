@@ -81,7 +81,8 @@ int main(int argc, char ** argv)
                     {
                         errx(EXIT_FAILURE, "%s", SDL_GetError());
                     }
-                    Rotation(argv[1]);
+                    if(argc >=3)
+                        Rotation(argv[2]);
                     break;
                 }
                 break;
