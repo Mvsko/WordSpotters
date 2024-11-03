@@ -12,6 +12,9 @@ solver : Solver/solver.c
 
 all: refine nn_nxor detection solver
 
+cleanletters:
+	find -type f -name 'letter*' -delete
+
 .PHONY: clean
 
 clean:
@@ -22,3 +25,4 @@ clean:
 	rm solver
 	find -type f -name 'out*' -delete
 	find -type f -name 'letter*' -delete
+	find -type d -name '*letter*' -delete
