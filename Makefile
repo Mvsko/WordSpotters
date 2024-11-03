@@ -21,3 +21,4 @@ clean:
 	rm detection
 	rm solver
 	find -type f -name 'out*' -delete
+	find -type f -name 'letter*' -delete
