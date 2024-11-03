@@ -1,13 +1,13 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <err.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <SDL2/SDL_pixels.h>
 #include <time.h>
 #include <stdlib.h>
 
-#include "Refine/Rotation.c"
-#include "Refine/Grayscale.c"
+#include "Preparation/Rotation.c"
+#include "Preparation/Treatment.c"
 #include "Tools/Save.c"
 
 int main(int argc, char ** argv)
@@ -76,13 +76,16 @@ int main(int argc, char ** argv)
                 case SDLK_b:
                     Toblackwhite(image);
                     break;
+                case SDLK_l:
+                    Brightness(image, -63);
+                    break;
                 case SDLK_s:
                     if(IMG_SavePNG(image, "Pictures/out.png")==1)
                     {
                         errx(EXIT_FAILURE, "%s", SDL_GetError());
                     }
                     if(argc >=3)
-                        Rotation(argv[2]);
+                        Rotation(argv[2],image);
                     break;
                 }
                 break;

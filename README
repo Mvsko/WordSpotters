@@ -1,6 +1,28 @@
-Projet OCR de S3 à Epita par WordSpotters,
+OCR Projet S3 at Epita by WordSpotters,
 
 Links:
-- Cahier des charges: https://moodle.epita.fr/pluginfile.php/179069/mod_label/intro/ocr_word_search_solver_fr.pdf?time=1726043236801
-- Ressource NeuralNetwork: http://neuralnetworksanddeeplearning.com/
+- Specifications: https://moodle.epita.fr/pluginfile.php/179069/mod_label/intro/ocr_word_search_solver_fr.pdf?time=1726043236801
+- NeuralNetwork Ressource: http://neuralnetworksanddeeplearning.com/
 
+Steps to use : 
+
+Step 1 - In the cmd, in WordSpotters/ use the command : make all
+ -> The files "refine","detection","solver" and "nn_nxor" will appear.
+Step 2 - How execute each one ? 
+-> for refine      :  ./refine <image-path> <rotation-angle possible-to-write-nopthing>
+  - with the key g, it will Grayscale the image;
+  - with the key b, it will Black and White the image;
+  - with the key l, it will change the brightness of the image;
+  - with the key s, it will save the image that you can see on sdl in the file "out.png" in Pictures/;
+
+-> for nn_nxor     :  ./nn_nxor <nb-test possible-to-write-nothing> 
+-> for solver      :  ./solver <grid-path> <word-to-find>
+-> for detection   :  ./detection <file-path> 
+- with the key d, it will start the process of detection and crop;
+
+ Step 3 - Of you want to clean the repo, use the command : make clean 
+
+Outputs and Results : 
+
+For the refine, you will have a picture in .png "out.png" in WordSpotters/Pictures/
+For solver,detection and nn_nxor, all results are in the console output.

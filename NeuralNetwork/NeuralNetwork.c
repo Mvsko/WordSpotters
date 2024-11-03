@@ -78,7 +78,7 @@ void train(NeuralNetwork* nn, double inputs[4][2], double outputs[4], int epochs
     }
 }
 
-int main() {
+int main(int argc,char** argv) {
     NeuralNetwork nn;
     init_network(&nn);
 
@@ -92,9 +92,10 @@ int main() {
 
     // fonction exit NXOR
     double outputs[4] = {0, 1, 1, 0}; // test of !A.!B + A.B
-
+    int nbtest = 10000;
     // Network Trainig
-    int nbtest =  10000;
+    if(argc == 2)
+        nbtest =  atoi(argv[1]);
     printf("Training of the NeuralNetwork with %d tests\n",nbtest);
     train(&nn, inputs, outputs, nbtest, 0.1); //Training
     printf("Training complete\n");

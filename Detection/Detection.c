@@ -9,30 +9,7 @@
 
 #include "../Tools/Save.c"
 
-
-//1 - comprendre son code V
-//2 - main boucle V
-//3 - gestion liste (init V - add V - check exist V - free V) V
-//4 - dessin debug V
-//5 - detec func V
-//6 - main V
-//7 - debug <-
-
-//			    x ---->
-//		    (x1,y1)		(x2,y1)
-//			-----------------
-//			|		|
-//			|		|
-//	  |		|		|
-//	y |		|		|
-//	  |		|		|
-//	 \/		|		|
-//			|		|
-//			|		|
-//			-----------------
-//		    (x1,y2)		(x2,y2)
-
-
+//Step 1: List of character positions
 int **initList(int n)
 {
     int **list = malloc(n * sizeof(size_t));
@@ -41,8 +18,6 @@ int **initList(int n)
 
 int isInList(int **list, int *listSize, int x1, int y1, int x2, int y2, int size)
 {
-    printf("test2.51\n");
-    //int height = *listSize;
     for (int i = 0; i < *listSize; i++)
     {
         if (list[i][0] == 0 || (list[i][0] == x1 && list[i][1] == y1 && list[i][2] == x2 && list[i][3] == y2 && list[i][4] == size))
@@ -53,29 +28,17 @@ int isInList(int **list, int *listSize, int x1, int y1, int x2, int y2, int size
 
 void addToList(int **list,int *listSize,int x1,int y1,int x2,int y2,int size)
 {
-    printf("test2.5\n");
     if (isInList(list,listSize,x1,y1,x2,y2,size) == -1)
     {
         return;
     }
-    printf("test2.6\n");
     *listSize = (*listSize) + 1;
-    printf("test2.7 - %d\n",*listSize);
-    //int **newlist = realloc(list,(*listSize) * sizeof(size_t));
-    //if (newlist == NULL)
-    //    printf("err\n\n\n");
-    printf("test2.8\n");
     list[*listSize - 1] = calloc(5, sizeof(size_t));
-    //if (newlist[*listSize - 1] == NULL)
-    //    printf("err2\n\n\n");
     list[*listSize - 1][0] = x1;
     list[*listSize - 1][1] = y1;
     list[*listSize - 1][2] = x2;
     list[*listSize - 1][3] = y2;
     list[*listSize - 1][4] = size;
-    //printf("test2.9 - %d\n",newlist[0][0]);
-    //list = newlist;
-    printf("test2.91 - %d\n",list[0][0]);
 }
 
 void freeList(int **list,size_t height)
@@ -87,17 +50,11 @@ void freeList(int **list,size_t height)
     free(list);
 }
 
-
-
-
+//Step 2: Function to draw the found characters
 void draw_rectangle(SDL_Surface* surface, int x, int y, int x2, int y2)
 {
-    if(surface == NULL)
-        printf("err");
     int width = x2;
     int height = y2;
-    printf("%d %d %d %d %d %d\n",x,y,x2,y2,width,height);
-   // SDL_LockSurface(surface);
     Uint32 * pixels = (Uint32 *)surface->pixels;
     for (int dy = y; dy < height; dy++)
     {
@@ -119,12 +76,11 @@ void draw_rectangle(SDL_Surface* surface, int x, int y, int x2, int y2)
         Uint32 pixel = (0xFF << 24) | (255 << 16) | (100 << 8) | 0;
         pixels[(y2) * surface->w + dx] = pixel;
     }
-    //SDL_UnlockSurface(surface);
 }
 
+//Step 3: Getting the number of characters (mandatory for list management)
 void getCharNb(SDL_Surface* image,int x, int y, int* listSize)
 {
-    printf("test2.2\n");
     Uint32 * pixels = (Uint32 *)image->pixels;
     int x1 = x;
     int y1 = y;
@@ -148,7 +104,18 @@ void getCharNb(SDL_Surface* image,int x, int y, int* listSize)
             {
                 Uint32 pixel = pixels[i * image->w + x1];
                 Uint8 r = pixel >> 16 & 0xFF;
-                if(r < 127.5)
+                pixel = pixels[(i) * image->w + x1 + 1];
+                Uint8 r2 = pixel >> 16 & 0xFF;
+                Uint8 r3 = 0;
+                Uint8 r4 = 0;
+                if (i > y1 && i < y2-1)
+                {
+                    pixel = pixels[(i-1) * image->w + x1 + 1];
+                    r3 = pixel >> 16 & 0xFF;
+                    pixel = pixels[(i+1) * image->w + x1 + 1];
+                    r4 = pixel >> 16 & 0xFF;
+                }
+                if(r < 127.5 && (r2 < 127.5 || r3 < 127.5 || r4 < 127.5))
                 {
                     x1--;
                     cont = 1;
@@ -164,7 +131,18 @@ void getCharNb(SDL_Surface* image,int x, int y, int* listSize)
             {
                 Uint32 pixel = pixels[i * image->w + x2];
                 Uint8 r = pixel >> 16 & 0xFF;
-                if(r < 127.5)
+                pixel = pixels[(i) * image->w + x2 - 1];
+                Uint8 r2 = pixel >> 16 & 0xFF;
+                Uint8 r3 = 0;
+                Uint8 r4 = 0;
+                if (i > y1 && i < y2-1)
+                {
+                    pixel = pixels[(i-1) * image->w + x2 - 1];
+                    r3 = pixel >> 16 & 0xFF;
+                    pixel = pixels[(i+1) * image->w + x2 - 1];
+                    r4 = pixel >> 16 & 0xFF;
+                }
+                if(r < 127.5 && (r2 < 127.5 || r3 < 127.5 || r4 < 127.5))
                 {
                     x2++;
                     cont = 1;
@@ -180,7 +158,18 @@ void getCharNb(SDL_Surface* image,int x, int y, int* listSize)
             {
                 Uint32 pixel = pixels[y1 * image->w + i];
                 Uint8 r = pixel >> 16 & 0xFF;
-                if(r < 127.5)
+                pixel = pixels[(y1+1) * image->w + i];
+                Uint8 r2 = pixel >> 16 & 0xFF;
+                Uint8 r3 = 0;
+                Uint8 r4 = 0;
+                if (i > x1 && i < x2-1)
+                {
+                    pixel = pixels[(y1+1) * image->w + i-1];
+                    r3 = pixel >> 16 & 0xFF;
+                    pixel = pixels[(y1+1) * image->w + i+1];
+                    r4 = pixel >> 16 & 0xFF;
+                }
+                if(r < 127.5 && (r2 < 127.5 || r3 < 127.5 || r4 < 127.5))
                 {
                     y1--;
                     cont = 1;
@@ -196,7 +185,18 @@ void getCharNb(SDL_Surface* image,int x, int y, int* listSize)
             {
                 Uint32 pixel = pixels[y2 * image->w + i];
                 Uint8 r = pixel >> 16 & 0xFF;
-                if(r < 127.5)
+                pixel = pixels[(y2-1) * image->w + i];
+                Uint8 r2 = pixel >> 16 & 0xFF;
+                Uint8 r3 = 0;
+                Uint8 r4 = 0;
+                if (i > x1 && i < x2-1)
+                {
+                    pixel = pixels[(y2-1) * image->w + i-1];
+                    r3 = pixel >> 16 & 0xFF;
+                    pixel = pixels[(y2-1) * image->w + i+1];
+                    r4 = pixel >> 16 & 0xFF;
+                }
+                if(r < 127.5 && (r2 < 127.5 || r3 < 127.5 || r4 < 127.5))
                 {
                     y2++;
                     cont = 1;
@@ -205,14 +205,12 @@ void getCharNb(SDL_Surface* image,int x, int y, int* listSize)
             }
         }
     }
-    printf("test2.3 - %d/%d - %d/%d\n",x1,y1,x2,y1);
     *listSize = (*listSize) +1;
-    printf("test2.4\n");
 }
 
+//Step 4: Getting the position of each character and putting it in the list
 void getCharPos(SDL_Surface* image,int x, int y, int** list, int* listSize)
 {
-    printf("test2.2\n");
     Uint32 * pixels = (Uint32 *)image->pixels;
     int x1 = x;
     int y1 = y;
@@ -236,7 +234,18 @@ void getCharPos(SDL_Surface* image,int x, int y, int** list, int* listSize)
             {
 		Uint32 pixel = pixels[i * image->w + x1];
             	Uint8 r = pixel >> 16 & 0xFF;
-            	if(r < 127.5)
+            	pixel = pixels[(i) * image->w + x1 + 1];
+                Uint8 r2 = pixel >> 16 & 0xFF;
+                Uint8 r3 = 0;
+                Uint8 r4 = 0;
+                if (i > y1 && i < y2-1)
+                {
+                    pixel = pixels[(i-1) * image->w + x1 + 1];
+                    r3 = pixel >> 16 & 0xFF;
+                    pixel = pixels[(i+1) * image->w + x1 + 1];
+                    r4 = pixel >> 16 & 0xFF;
+                }
+                if(r < 127.5 && (r2 < 127.5 || r3 < 127.5 || r4 < 127.5))
                 {
                     x1--;
                     cont = 1;
@@ -252,7 +261,18 @@ void getCharPos(SDL_Surface* image,int x, int y, int** list, int* listSize)
             {
                 Uint32 pixel = pixels[i * image->w + x2];
                 Uint8 r = pixel >> 16 & 0xFF;
-                if(r < 127.5)
+                pixel = pixels[(i) * image->w + x2 - 1];
+                Uint8 r2 = pixel >> 16 & 0xFF;
+                Uint8 r3 = 0;
+                Uint8 r4 = 0;
+                if (i > y1 && i < y2-1)
+                {
+                    pixel = pixels[(i-1) * image->w + x2 - 1];
+                    r3 = pixel >> 16 & 0xFF;
+                    pixel = pixels[(i+1) * image->w + x2 - 1];
+                    r4 = pixel >> 16 & 0xFF;
+                }
+                if(r < 127.5 && (r2 < 127.5 || r3 < 127.5 || r4 < 127.5))
                 {
                     x2++;
                     cont = 1;
@@ -268,7 +288,18 @@ void getCharPos(SDL_Surface* image,int x, int y, int** list, int* listSize)
             {
                 Uint32 pixel = pixels[y1 * image->w + i];
                 Uint8 r = pixel >> 16 & 0xFF;
-                if(r < 127.5)
+                pixel = pixels[(y1+1) * image->w + i];
+                Uint8 r2 = pixel >> 16 & 0xFF;
+                Uint8 r3 = 0;
+                Uint8 r4 = 0;
+                if (i > x1 && i < x2-1)
+                {
+                    pixel = pixels[(y1+1) * image->w + i-1];
+                    r3 = pixel >> 16 & 0xFF;
+                    pixel = pixels[(y1+1) * image->w + i+1];
+                    r4 = pixel >> 16 & 0xFF;
+                }
+                if(r < 127.5 && (r2 < 127.5 || r3 < 127.5 || r4 < 127.5))
                 {
                     y1--;
                     cont = 1;
@@ -284,7 +315,18 @@ void getCharPos(SDL_Surface* image,int x, int y, int** list, int* listSize)
             {
                 Uint32 pixel = pixels[y2 * image->w + i];
                 Uint8 r = pixel >> 16 & 0xFF;
-                if(r < 127.5)
+                pixel = pixels[(y2-1) * image->w + i];
+                Uint8 r2 = pixel >> 16 & 0xFF;
+                Uint8 r3 = 0;
+                Uint8 r4 = 0;
+                if (i > x1 && i < x2-1)
+                {
+                    pixel = pixels[(y2-1) * image->w + i-1];
+                    r3 = pixel >> 16 & 0xFF;
+                    pixel = pixels[(y2-1) * image->w + i+1];
+                    r4 = pixel >> 16 & 0xFF;
+                }
+                if(r < 127.5 && (r2 < 127.5 || r3 < 127.5 || r4 < 127.5))
                 {
                     y2++;
                     cont = 1;
@@ -293,18 +335,42 @@ void getCharPos(SDL_Surface* image,int x, int y, int** list, int* listSize)
             }
         }
     }
-    printf("test2.3 - %d/%d - %d/%d\n",x1,y1,x2,y1);
-    addToList(list,listSize,x1,y1,x2,y2,1);
-    printf("test2.4\n");
+    addToList(list,listSize,x1,y1,x2,y2,(x2-x1)*(y2-1));
 }
 
+//Step 5: Cutting the found letters into individual images
+void cut(SDL_Surface* image, int** list,int listSize)
+{
+    system("mkdir -p letters_extracted");
+    for (int i = 0; i < listSize; i++)
+    {
+        int x_pos = list[i][0];
+        int y_pos = list[i][1];
+        int wwidth = list[i][2] - list[i][0];
+        int wheight = list[i][3] - list[i][1];
+        SDL_Rect cell_rect = { x_pos, y_pos, wwidth, wheight };
+        SDL_Surface *cell_surface = SDL_CreateRGBSurface(0, wwidth, wheight, image->format->BitsPerPixel,
+                                                                       image->format->Rmask, image->format->Gmask,
+                                                                       image->format->Bmask, image->format->Amask);
+        if(!cell_surface)
+        {
+            return;
+        }
+        SDL_BlitSurface(image, &cell_rect, cell_surface, NULL);
+        char filename[listSize];
+        snprintf(filename, sizeof(filename), "letters_extracted/letter_%d_%d.png", x_pos, y_pos);
+        IMG_SavePNG(cell_surface, filename);
+        //printf("Cell [%d, %d] saved in %s\n", x, y, filename);
+        SDL_FreeSurface(cell_surface);
+    }
+    //freeList(list,listSize);
+}
+
+//Step 6: main loop
 void detectionLoop(SDL_Surface* image)
 {
-    printf("test1\n");
     Uint32 * pixels = (Uint32 *)image->pixels;
     int listSize = 0;
-    //int **list = initList();
-    printf("test2\n");
     for (int y = 0; y < image->h; y++)
     {
         for (int x = 0; x < image->w ; x++)
@@ -313,7 +379,6 @@ void detectionLoop(SDL_Surface* image)
             Uint8 r = pixel >> 16 & 0xFF;
             if(r < 127.5)
             {
-	        printf("test2.1 - %d / %d\n",y,x);
                 getCharNb(image,x,y,&listSize);
             }
         }
@@ -328,26 +393,25 @@ void detectionLoop(SDL_Surface* image)
             Uint8 r = pixel >> 16 & 0xFF;
             if(r < 127.5)
             {
-                printf("test2.1 - %d / %d\n",y,x);
                 getCharPos(image,x,y,list,&size2);
             }
         }
     }
-    printf("test3\n");
+    /*int averageSize = 0;
     for (int i = 0; i < size2; i++)
         if (list[i][0] != 0)
+        {
+            averageSize += list[i][4];
+        }
+    averageSize = averageSize / size2;*/
+    cut(image,list,size2);
+    for (int i = 0; i < size2; i++)
+        if (list[i][0] != 0 /*&& averageSize/2 <= list[i][4] && 2*averageSize >= list[i][4]*/)
 	{
-	    printf("%d - %d\n",i,list[i][0]);
             draw_rectangle(image,list[i][0],list[i][1],list[i][2],list[i][3]);
         }
-    printf("test4\n");
     freeList(list,listSize);
-    printf("test5\n");
 }
-
-
-
-
 
 int main(int argc, char ** argv)
 {
@@ -388,7 +452,6 @@ int main(int argc, char ** argv)
     SDL_Surface * originalImage = image;
     image = SDL_ConvertSurfaceFormat(image, SDL_PIXELFORMAT_ARGB8888, 0);
     SDL_FreeSurface(originalImage);
-    int count = 1;
     while (quit==0)
     {
 
@@ -407,58 +470,7 @@ int main(int argc, char ** argv)
                 switch (event.key.keysym.sym)
                 {
                 case SDLK_d:
-                    //detectionLoop(image);
-printf("test1\n");
-    Uint32 * pixels = (Uint32 *)image->pixels;
-    int listSize = 0;
-    //int **list = initList();
-    printf("test2\n");
-    for (int y = 0; y < image->h; y++)
-    {
-        for (int x = 0; x < image->w ; x++)
-        {
-            Uint32 pixel = pixels[y * image->w + x];
-            Uint8 r = pixel >> 16 & 0xFF;
-            if(r < 127.5)
-            {
-                printf("test2.1 - %d / %d\n",y,x);
-                getCharNb(image,x,y,&listSize);
-            }
-        }
-    }
-    int **list = initList(listSize);
-    int size2 = 0;
-    for (int y = 0; y < image->h; y++)
-    {
-        for (int x = 0; x < image->w ; x++)
-        {
-            Uint32 pixel = pixels[y * image->w + x];
-            Uint8 r = pixel >> 16 & 0xFF;
-            if(r < 127.5)
-            {
-                printf("test2.1 - %d / %d\n",y,x);
-                getCharPos(image,x,y,list,&size2);
-            }
-        }
-    }
-    printf("test3\n");
-    for (int i = 0; i < size2; i++)
-        if (list[i][0] != 0)
-        {
-            printf("%d - %d\n",i,list[i][0]);
-            draw_rectangle(image,list[i][0],list[i][1],list[i][2],list[i][3]);
-        }
-    printf("test4\n");
-    freeList(list,listSize);
-    printf("test5\n");
-		    //count++;
-                    //draw_rectangle(image,0,0,5*count,5*count);
-                    break;
-                case SDLK_e:
-                    //detectionLoop(image);
-                    count++;
-                    draw_rectangle(image,0,0,44,46);
-		    draw_rectangle(image,600,649,614,670);
+                    detectionLoop(image);
                     break;
                 case SDLK_s:
                     if(IMG_SavePNG(image, "Pictures/out.png")==1)

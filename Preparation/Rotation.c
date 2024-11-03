@@ -1,12 +1,12 @@
 
-void Rotation(char * angle)
+void Rotation(char * angle,SDL_Surface* image)
 {
-        FILE *fIn = fopen("../Pictures/out.png","r");					//Input File name
-	FILE *fOut = fopen("../Pictures/out_rotate.png","w+");		    	        //Output File name
+        FILE *fIn = fopen("Pictures/out.png","r");					//Input File name
+	FILE *fOut = fopen("Pictures/out_rotate.png","w+");		    	        //Output File name
 
 	int i,j,choice;
-	choice = atoi(angle)
-	unsigned char byte[54],colorTable[1024];
+	choice = atoi(angle);
+	unsigned char byte[54],colorTable[2048];
 
 	if(fIn==NULL)											// check if the input file has not been opened succesfully.
 	{
@@ -21,13 +21,15 @@ void Rotation(char * angle)
 	fwrite(byte,sizeof(unsigned char),54,fOut);				//write the header back
 
 	// extract image height, width and bitDepth from imageHeader
-	int height = *(int*)&byte[18];
-	int width = *(int*)&byte[22];
+	//int height = *(int*)&byte[18];
+	//int width = *(int*)&byte[22];
 	int bitDepth = *(int*)&byte[28];
+        int height = image->h;
+        int width = image->w;
 
 	printf("width: %d\n",width);
 	printf("height: %d\n",height );
-
+        printf("BitDeph: %d\n",bitDepth );
 	int size = height*width;								//calculate image size
 
 	if(bitDepth <= 8)										//if ColorTable present, extract it.

@@ -59,3 +59,39 @@ void Toblackwhite (SDL_Surface* image)
         }
     }
 }
+
+Uint8 f(Uint8 c, int n)
+{
+    if(c==255|| c + n > 127)
+        return 255;
+
+    else if(c + n < 0)
+        return 0;
+    else
+        return c + n;
+}
+
+void Brightness(SDL_Surface * image, int n)
+{
+    Uint32 * pixels = (Uint32 *)image->pixels;
+
+    for (int y = 0; y < image->h; y++)
+    {
+        for (int x = 0; x < image->w; x++)
+        {
+            Uint32 pixel = pixels[y * image->w + x];
+
+
+            Uint8 r = pixel >> 16 & 0xFF;
+            Uint8 g = pixel >> 8 & 0xFF;
+            Uint8 b = pixel & 0xFF;
+
+            r = f(r,n);
+            g = f(g,n);
+            b = f(b,n);
+
+            pixel = (0xFF << 24) | (r << 16) | (g << 8) | b;
+            pixels[y * image->w + x] = pixel;
+         }
+    }
+}
