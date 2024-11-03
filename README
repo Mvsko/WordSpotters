@@ -18,7 +18,7 @@ Step 2 - How execute each one ?
 -> for nn_nxor     :  ./nn_nxor <nb-test possible-to-write-nothing> 
 -> for solver      :  ./solver <grid-path> <word-to-find>
 -> for detection   :  ./detection <file-path> 
-- with the key d, it will start the process of detection and crop;
+  - with the key d, it will start the process of detection and crop;
 
  Step 3 - Of you want to clean the repo, use the command : make clean 
 
