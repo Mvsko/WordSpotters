@@ -1,12 +1,11 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <err.h>
-//#include <unistd.h>
+
 #include <SDL2/SDL_pixels.h>
 #include <time.h>
 #include <stdlib.h>
 
-#include "Preparation/Rotation.c"
 #include "Preparation/Treatment.c"
 #include "Tools/Save.c"
 
@@ -58,9 +57,10 @@ int main(int argc, char ** argv)
 
         SDL_UpdateTexture(texture, NULL, image->pixels,
         image->w * sizeof(Uint32));
-
+        SDL_SetRenderDrawColor(renderer,255,255,255,255);
+        SDL_RenderClear(renderer);
+        SDL_RenderCopyEx(renderer, texture, NULL, NULL, frotate, NULL,SDL_FLIP_NONE );
         SDL_WaitEvent(&event);
-
         switch (event.type)
         {
             case SDL_QUIT:
@@ -79,18 +79,21 @@ int main(int argc, char ** argv)
                 case SDLK_l:
                     Brightness(image, -63);
                     break;
+                case SDLK_t:
+                    frotate += 0.5;
+                    break;
                 case SDLK_s:
-                    if(IMG_SavePNG(image, "Pictures/out.png")==1)
+                    SDL_Surface * screenshot = SDL_CreateRGBSurfaceWithFormat(0, 800, 800, 32, SDL_PIXELFORMAT_ARGB8888);
+                    SDL_RenderReadPixels(renderer, NULL, SDL_PIXELFORMAT_ARGB8888,screenshot->pixels, screenshot->pitch);
+                    if(IMG_SavePNG(screenshot, "Pictures/out.png")==1)
                     {
                         errx(EXIT_FAILURE, "%s", SDL_GetError());
                     }
-                    if(argc >=3)
-                        Rotation(argv[2],image);
+                    SDL_FreeSurface(screenshot);
                     break;
                 }
                 break;
         }
-        SDL_RenderCopyEx(renderer, texture, NULL, NULL, frotate, NULL,SDL_FLIP_NONE );
         SDL_RenderPresent(renderer);
 
     }
