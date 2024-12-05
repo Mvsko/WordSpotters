@@ -95,3 +95,36 @@ void Brightness(SDL_Surface * image, int n)
          }
     }
 }
+
+void denoiseImage(SDL_Surface *image)
+{
+    int width = image->w;
+    int height = image->h;
+
+    Uint32 *pixels = (Uint32 *)image->pixels;
+
+    for (int y = 1; y < height - 1; y++) {
+        for (int x = 1; x < width - 1; x++) {
+            //The pixel that will be modified
+            Uint32 pixelcurrent = pixels[y * width + x];
+            int r = 0, g = 0, b = 0;
+            // Average of neighboring pixels
+            for (int j = -1; j <= 1; j++) {
+                for (int i = -1; i <= 1; i++) {
+                    Uint32 pixel = pixels[(y + j) * width + (x + i)];
+                    SDL_Color color;
+                    SDL_GetRGBA(pixel, image->format, &color.r, &color.g, &color.b, &color.a);
+                    r += color.r;
+                    g += color.g;
+                    b += color.b;
+                }
+            }
+            r /= 9;
+            g /= 9;
+            b /= 9;
+            // Replaces pixel colors with the average 
+            pixelcurrent = (0xFF << 24) | (r << 16) | (g << 8) | b;
+            pixels[y * width + x] = pixelcurrent;
+        }
+    }
+}
