@@ -79,7 +79,10 @@ int main(int argc, char ** argv)
                 case SDLK_l:
                     Brightness(image, -63);
                     break;
-                case SDLK_t:
+                case SDLK_d:
+                    denoiseImage(image);
+                    break;
+                case SDLK_r:
                     frotate += 0.5;
                     break;
                 case SDLK_s:
