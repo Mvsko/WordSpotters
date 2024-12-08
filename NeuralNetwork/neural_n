@@ -222,7 +222,7 @@ int main(int argc, char *argv[]) {
     load_weights(hidden_output_weights, HIDDEN_SIZE * OUTPUT_SIZE, weights_file);
 
     // ouvrir fichier de sortie
-    FILE *output_file = fopen("./Solver/output.txt", "w");
+    FILE *output_file = fopen("./Solver/grid", "w");
     if (!output_file)
     {
         perror("Erreur : Impossible d'écrire dans le fichier");
