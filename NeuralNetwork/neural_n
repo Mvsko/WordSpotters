@@ -1,0 +1,268 @@
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#include <time.h>
+
+#define INPUT_SIZE 225       // pixels (15x15)
+#define HIDDEN_SIZE 64       // taille couche cachée
+#define OUTPUT_SIZE 26       // pour 26 lettres alphabet
+#define LEARNING_RATE 0.1    // taux d'apprentissage
+#define EPOCHS 1000          // nombre itérations entrainement
+
+// fonction sigmoid + sa dérivée
+double sigmoid(double x) 
+{
+    return 1.0 / (1.0 + exp(-x));
+}
+
+double sigmoid_derivative(double x) 
+{
+    return x * (1.0 - x);
+}
+
+// initialisation poids
+void initialize_weights(double *weights, int size) 
+{
+    for (int i = 0; i < size; i++) 
+    {
+        weights[i] = ((double)rand() / RAND_MAX) * 2 - 1; // poids entre -1 et 1
+    }
+}
+
+// sauvegarder + charger poids dans fichier
+void save_weights(double *weights, int size, const char *filename) 
+{
+    FILE *file = fopen(filename, "w");
+    if (!file) 
+    {
+        perror("Erreur : Impossible de sauvegarder les poids");
+        exit(1);
+    }
+    
+    for (int i = 0; i < size; i++) 
+    {
+        fprintf(file, "%f\n", weights[i]);
+    }
+    
+    fclose(file);
+}
+
+void load_weights(double *weights, int size, const char *filename) 
+{
+    FILE *file = fopen(filename, "r");
+    if (!file) 
+    {
+        perror("Erreur : Impossible de charger les poids");
+        exit(1);
+    }
+    for (int i = 0; i < size; i++) 
+    {
+        fscanf(file, "%lf", &weights[i]);
+    }
+    fclose(file);
+}
+
+// convertir  PNG en tableau de 225 valeurs binaires (0 = blanc, 1 = noir)
+void convert_image_to_array(const char *filename, double *input) 
+{
+    SDL_Surface *image = IMG_Load(filename);
+    if (!image) 
+    {
+        fprintf(stderr, "Erreur : Impossible de charger l'image %s : %s\n", filename, IMG_GetError());
+        exit(1);
+    }
+
+    if (image->w != 15 || image->h != 15) 
+    {
+        fprintf(stderr, "Erreur : L'image doit être de 15x15 pixels.\n");
+        SDL_FreeSurface(image);
+        exit(1);
+    }
+
+    Uint32 *pixels = (Uint32 *)image->pixels;
+    SDL_PixelFormat *format = image->format;
+
+    for (int y = 0; y < 15; y++) 
+    {
+        for (int x = 0; x < 15; x++) 
+        {
+            Uint32 pixel = pixels[y * image->w + x];
+            Uint8 r, g, b;
+            SDL_GetRGB(pixel, format, &r, &g, &b);
+            input[y * 15 + x] = (r + g + b < 128 * 3) ? 1.0 : 0.0; // Pixel noir -> 1, blanc -> 0
+        }
+    }
+
+    SDL_FreeSurface(image);
+}
+
+// propagation avant
+void forward_propagation(double *input, double *hidden, double *output, 
+                         double *input_hidden_weights, double *hidden_output_weights, 
+                         double *hidden_bias, double *output_bias) 
+{
+    // couche cachée
+    for (int i = 0; i < HIDDEN_SIZE; i++) 
+    {
+        hidden[i] = hidden_bias[i];
+        for (int j = 0; j < INPUT_SIZE; j++) 
+        {
+            hidden[i] += input[j] * input_hidden_weights[j * HIDDEN_SIZE + i];
+        }
+        hidden[i] = sigmoid(hidden[i]);
+    }
+
+    // couche de sortie
+    for (int i = 0; i < OUTPUT_SIZE; i++) 
+    {
+        output[i] = output_bias[i];
+        for (int j = 0; j < HIDDEN_SIZE; j++) 
+        {
+            output[i] += hidden[j] * hidden_output_weights[j * OUTPUT_SIZE + i];
+        }
+        output[i] = sigmoid(output[i]);
+    }
+}
+
+// reconnaissance de lettre
+char recognize_letter(double *output)
+{
+    int max_index = 0;
+    for (int i = 1; i < OUTPUT_SIZE; i++) 
+    {
+        if (output[i] > output[max_index]) 
+        {
+            max_index = i;
+        }
+    }
+    return 'A' + max_index;
+}
+
+// entrainement avec rétropropagation
+void train(double *input, char target, 
+           double *input_hidden_weights, double *hidden_output_weights, 
+           double *hidden_bias, double *output_bias) 
+{
+    double 	hidden[HIDDEN_SIZE], output[OUTPUT_SIZE];
+			forward_propagation(input, hidden, output, 
+            input_hidden_weights, hidden_output_weights, 
+            hidden_bias, output_bias);
+
+    // calcul erreur de sortie
+    double target_output[OUTPUT_SIZE] = {0};
+    target_output[target - 'A'] = 1.0;
+    double output_error[OUTPUT_SIZE];
+    for (int i = 0; i < OUTPUT_SIZE; i++) 
+    {
+        output_error[i] = target_output[i] - output[i];
+    }
+
+    // calcul erreur couche cachée
+    double hidden_error[HIDDEN_SIZE];
+    for (int i = 0; i < HIDDEN_SIZE; i++) 
+    {
+        hidden_error[i] = 0.0;
+        for (int j = 0; j < OUTPUT_SIZE; j++) 
+        {
+            hidden_error[i] += output_error[j] * hidden_output_weights[i * OUTPUT_SIZE + j];
+        }
+        hidden_error[i] *= sigmoid_derivative(hidden[i]);
+    }
+
+    // mise à jour poids (sortie -> cachée)
+    for (int i = 0; i < OUTPUT_SIZE; i++) 
+    {
+        for (int j = 0; j < HIDDEN_SIZE; j++) 
+        {
+            hidden_output_weights[j * OUTPUT_SIZE + i] += LEARNING_RATE * output_error[i] * hidden[j];
+        }
+        output_bias[i] += LEARNING_RATE * output_error[i];
+    }
+
+    // mise à jour poids (cachée -> entrée)
+    for (int i = 0; i < HIDDEN_SIZE; i++) 
+    {
+        for (int j = 0; j < INPUT_SIZE; j++) 
+        {
+            input_hidden_weights[j * HIDDEN_SIZE + i] += LEARNING_RATE * hidden_error[i] * input[j];
+        }
+        hidden_bias[i] += LEARNING_RATE * hidden_error[i];
+    }
+}
+
+int main(int argc, char *argv[]) {
+    if (argc < 4) 
+    {
+        fprintf(stderr, "Veuillez respecter le format: %s <weights_file> <rows> <cols>\n", argv[0]);
+        return 1;
+    }
+
+    const char *weights_file = argv[1];
+    int rows = atoi(argv[2]);
+    int cols = atoi(argv[3]);
+
+    srand(time(NULL));
+
+    // initialisation poids
+    double input_hidden_weights[INPUT_SIZE * HIDDEN_SIZE];
+    double hidden_output_weights[HIDDEN_SIZE * OUTPUT_SIZE];
+    double hidden_bias[HIDDEN_SIZE];
+    double output_bias[OUTPUT_SIZE];
+    
+    initialize_weights(input_hidden_weights, INPUT_SIZE * HIDDEN_SIZE);
+    initialize_weights(hidden_output_weights, HIDDEN_SIZE * OUTPUT_SIZE);
+    initialize_weights(hidden_bias, HIDDEN_SIZE);
+    initialize_weights(output_bias, OUTPUT_SIZE);
+
+    // charger poids existants
+    load_weights(input_hidden_weights, INPUT_SIZE * HIDDEN_SIZE, weights_file);
+    load_weights(hidden_output_weights, HIDDEN_SIZE * OUTPUT_SIZE, weights_file);
+
+    // ouvrir fichier de sortie
+    FILE *output_file = fopen("./Solver/output.txt", "w");
+    if (!output_file)
+    {
+        perror("Erreur : Impossible d'écrire dans le fichier");
+        return 1;
+    }
+
+    // parcours grille (ligne par ligne)
+    for (int y = 0; y < rows; y++)
+    {
+        for (int x = 0; x < cols; x++)
+        {
+            // construire nom fichier
+            char filename[50];
+            snprintf(filename, sizeof(filename), "./grid_extracted/letter_%d_%d.png", x, y);
+
+            // charger image et effectuer reconnaissance
+            double input[INPUT_SIZE];
+            convert_image_to_array(filename, input);
+
+            // propagation avant
+            double hidden[HIDDEN_SIZE], output[OUTPUT_SIZE];
+            forward_propagation(input, hidden, output, 
+                                input_hidden_weights, hidden_output_weights, 
+                                hidden_bias, output_bias);
+
+            // reconnaitre la lettre
+            char predicted_letter = recognize_letter(output);
+            printf("Lettre reconnue à (%d, %d) : %c\n", x, y, predicted_letter);
+
+            // écrire lettre dans fichier texte
+            fprintf(output_file, "%c", predicted_letter);
+        }
+        fprintf(output_file, "\n"); // nouvelle ligne après chaque ligne
+    }
+
+    fclose(output_file);
+
+    // sauvegarder poids
+    save_weights(input_hidden_weights, INPUT_SIZE * HIDDEN_SIZE, weights_file);
+    save_weights(hidden_output_weights, HIDDEN_SIZE * OUTPUT_SIZE, weights_file);
+
+    return 0;
+}
